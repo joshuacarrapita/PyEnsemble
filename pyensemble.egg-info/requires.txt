@@ -1,0 +1,11 @@
+numpy
+scikit-learn
+scipy
+pathos
+pympler
+
+[tests]
+pytest>=4.4.0
+flake8
+pytest-xdist
+pytest-cov
