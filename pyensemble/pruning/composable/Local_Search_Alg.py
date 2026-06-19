@@ -32,7 +32,7 @@ def LocalSearch_kappa_sum(S, y):
     for i in range(n - 1):
         for j in range(i + 1, n):
             ans, _, _ = KappaMulti(S[i], S[j], y)
-            Kij[i, j] = ans
+            Kij[i, j] = 1.0 - ans
     # upper triangular matrix
     ans = np.sum(Kij) / (n * (n - 1.) / 2.)
     del n, Kij
@@ -58,22 +58,11 @@ def Local_Search(yt, y, nb_cls, nb_pru, epsilon):
     #
     randseed = int(time.time() * GAP_MID % GAP_INF)
     prng = np.random.RandomState(randseed)
-    idx2 = np.arange(nb_cls)
-    prng.shuffle(idx2)
-    idx3 = idx2[: nb_pru]
-    if (row in idx3) and (col in idx3):
-        idx4 = idx3  # idx2[: nb_pru]
-    elif (row in idx3) and (col not in idx3):
-        idx4 = idx3[: -1]
-    elif (row not in idx3) and (col in idx3):
-        idx4 = idx3[: -1]
-    elif (row not in idx3) and (col not in idx3):
-        idx4 = idx3[: -2]
-    else:
-        pass
-    for i in idx4:
+    available = [i for i in range(nb_cls) if not P[i]]
+    prng.shuffle(available)
+    for i in available[:nb_pru - 2]:
         P[i] = True
-    del randseed, prng, idx2,idx3,idx4, row,col  # i,
+    del randseed, prng, available, row, col
     #
     # while there exists p\in S\S'
     nb_count = np.sum(P) * (len(P) - np.sum(P))  # nb_cls = len(P)
@@ -91,7 +80,7 @@ def Local_Search(yt, y, nb_cls, nb_pru, epsilon):
                 tem_q = deepcopy(S_within)
                 tem_q[idx_p] = q
                 div_af = LocalSearch_kappa_sum(yt[tem_q].tolist(), y)
-                if div_af > div_b4 * (1. + epsilon / nb_cls):
+                if div_af > div_b4 * (1. + epsilon / nb_pru):
                     flag = True
                     S_within = deepcopy(tem_q)
                     tem_p = deepcopy(S_without)
