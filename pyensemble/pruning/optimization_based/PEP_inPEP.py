@@ -68,7 +68,7 @@ def PEP_PEP(yt, y, nb_cls, rho):
     s = np.random.randint(2, size=nb_cls).tolist()
     P = [];     P.append( deepcopy(s) )
     #
-    nb_count = int(np.ceil(rho * nb_cls))  # = nb_pru
+    nb_count = int(np.ceil((nb_cls**2) * np.log(nb_cls))) if nb_cls > 1 else 1
     while nb_count > 0:
         idx = np.random.randint( len(P) )
         s0 = P[idx]
