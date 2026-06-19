@@ -81,6 +81,8 @@ def PEP_err_hi(y, hi):
 # binary  [I think multi-class classification]
 #
 def PEP_f_Hs(y, yt, s):
+    if sum(s) == 0:
+        return float('inf'), []
     Hsx = PEP_Hs_x(y, yt, s)
     ans = np.mean(np.array(Hsx) != np.array(y))
     return ans, deepcopy(Hsx)
