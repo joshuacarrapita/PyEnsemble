@@ -51,13 +51,9 @@ def KappaMulti(ha, hb, y):
     #
     c_diagonal = [Cij[i][i] for i in range(dY)]  # Cij[i, i]
     theta1 = np.sum(c_diagonal) / float(m)
-    c_row_sum = [np.prod(
-        [(Cij[i, i] + Cij[i, j]) for j in range(dY) if (j != i)]
-    ) for i in range(dY)]
-    c_col_sum = [np.prod(
-        [(Cij[i, j] + Cij[j, j]) for i in range(dY) if (i != j)]
-    ) for j in range(dY)]
-    theta2 = np.sum(np.multiply(c_row_sum, c_col_sum)) / (float(m) ** 2)
+    c_row_sum = np.sum(Cij, axis=1)
+    c_col_sum = np.sum(Cij, axis=0)
+    theta2 = np.sum((c_row_sum / m) * (c_col_sum / m))
     #
     ans = (theta1 - theta2) / check_zero(1. - theta2)
     del dY, ha,hb, Cij, m
@@ -96,18 +92,14 @@ def Kappa_Pruning(yt, y, nb_cls, nb_pru):
         finally:
             pass
         #   #
-        if nb_p + 1 == nb_pru:
+        if not P[row] and nb_p < nb_pru:
             P[row] = True
-            Kij[row, :] = sys.maxsize
-            Kij[:, row] = sys.maxsize
             nb_p += 1
-        else:
-            P[row] = True;  P[col] = True
-            Kij[row, :] = sys.maxsize
-            Kij[:, col] = sys.maxsize
-            Kij[:, row] = sys.maxsize
-            Kij[col, :] = sys.maxsize
-            nb_p += 2
+        if not P[col] and nb_p < nb_pru:
+            P[col] = True
+            nb_p += 1
+            
+        Kij[row, col] = sys.maxsize
         del idx, row, col
     #   #
     # yo = np.array(yt)[P == True].tolist()
