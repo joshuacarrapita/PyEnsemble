@@ -35,6 +35,12 @@ def GMM_Kappa_sum(p, S, y):
     tem = np.sum(ans)
     return tem
 
+def GMM_Kappa_min_dist(p, S, y):
+    ans = []
+    for q in S:
+        tem, _, _ = KappaMulti(p, q, y)
+        ans.append(1.0 - tem)
+    return np.min(ans)
 
 def GMM_Algorithm(yt, y, nb_cls, nb_pru):
     P = np.zeros(nb_cls, dtype=DTY_BOL)
@@ -52,7 +58,7 @@ def GMM_Algorithm(yt, y, nb_cls, nb_pru):
         if len(idx_p_not_S) == 0:
             idx = -1
         else:
-            ans = [GMM_Kappa_sum(yt[j], all_q_in_S, y) for j in idx_p_not_S]
+            ans = [GMM_Kappa_min_dist(yt[j], all_q_in_S, y) for j in idx_p_not_S]
             idx_p = ans.index( np.max(ans) )
             idx = idx_p_not_S[idx_p]
             del ans, idx_p
