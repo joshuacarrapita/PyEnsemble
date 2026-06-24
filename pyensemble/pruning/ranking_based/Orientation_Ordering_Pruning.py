@@ -97,20 +97,28 @@ def reference_vector(nb_y, cens):
 # The classifiers are ordered by increasing values of the angle between the signature
 # vectors of the individual classifiers and the reference vector $\mathbf{c}_{ref}$
 #
-def Orientation_Ordering_Pruning(yt, y):
+def Orientation_Ordering_Pruning(yt, y, nb_pru=None):
     nb_y = len(y)   # number of samples / instances
     cens, ct = average_signature_vector(yt, y)
     cref, flag = reference_vector(nb_y, cens)
-    theta = [angle(i, cref) for i in ct]
+    theta = np.array([angle(i, cref) for i in ct])
     #
-    # P = np.array(theta) < np.pi / 2.
-    P = np.array(theta) < (np.pi / 2.)
+    
+    if nb_pru is not None:
+        best_indices = np.argsort(theta)[:nb_pru]
+        P = np.zeros(len(yt), dtype=bool)
+        P[best_indices] = True
+    else:
+        valid_angles = theta[theta < (np.pi / 2.)]
+        if len(valid_angles) > 0:
+            threshold = np.mean(valid_angles)
+            P = theta < threshold
+        else:
+            P = np.zeros(len(yt), dtype=bool)
+            P[np.random.randint(len(P))] = True
+            
     P = P.tolist()
     del nb_y, cens,ct,cref,theta
-    # if np.abs(flag - 0.) < 1e-3:
-    #     print("$\mathbf{c}_{ref}$ becomes unstable!")
-    if np.sum(P) == 0:
-        P[ np.random.randint(len(P)) ] = True
     yo = np.array(yt)[P].tolist()
     #
     gc.collect()
